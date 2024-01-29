@@ -1,0 +1,11 @@
+# my_config.yaml
+
+# Paths
+data_path: 'data/sdo/sensor.parq'
+results_path: 'results/iso1.json'
+
+# Log Parameters
+logging:
+  level: INFO                         # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+##############################################################
