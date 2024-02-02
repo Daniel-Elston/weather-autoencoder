@@ -9,42 +9,43 @@ project_dir, config = setup_project_env()
 
 
 class Logger:
-    def __init__(
-            self, name, log_file):
+    def __init__(self, name, log_file):
         """
         Initialize the Logger.
 
         :param name: Name of the logger.
         :param log_file: File path for the log file.
-        :param level: Logging level, e.g., logging.INFO, logging.DEBUG.
         """
-        # Create a logger
+        # Create or get a logger
         level = config['logging']['level']
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(getattr(logging, level))
+        logger = logging.getLogger(name)
 
-        # Create handlers
-        file_handler = RotatingFileHandler(
-            os.path.join(project_dir, f'log/{log_file}'), maxBytes=1000000, backupCount=5)
-        console_handler = logging.StreamHandler()
+        # Check if the logger already has handlers to avoid adding them again
+        if not logger.handlers:
+            logger.setLevel(getattr(logging, level))
 
-        # Set levels manually
-        console_handler.setLevel(logging.INFO)
+            # Create handlers
+            file_handler = RotatingFileHandler(
+                os.path.join(project_dir, f'log/{log_file}'), maxBytes=1000000, backupCount=5)
+            console_handler = logging.StreamHandler()
 
-        # Create formatters and add to handlers
-        file_formatter = logging.Formatter(
-            '%(pathname)s - %(asctime)s - %(levelname)s - %(filename)s'
-            ' - %(lineno)d - %(module)s - %(funcName)s - %(name)s - %(message)s')
-        console_formatter = logging.Formatter(
-            '%(name)s - %(levelname)s - %(module)s - %(funcName)s - %(lineno)d - %(message)s')
-        file_handler.setFormatter(file_formatter)
-        console_handler.setFormatter(console_formatter)
+            # Set levels
+            console_handler.setLevel(logging.INFO)
 
-        # Add handlers to the logger
-        self.logger.addHandler(file_handler)
-        self.logger.addHandler(console_handler)
+            # Create formatters and add to handlers
+            file_formatter = logging.Formatter(
+                '%(pathname)s - %(asctime)s - %(levelname)s - %(filename)s'
+                ' - %(lineno)d - %(module)s - %(funcName)s - %(name)s - %(message)s')
+            console_formatter = logging.Formatter(
+                '%(name)s - %(levelname)s - %(module)s - %(funcName)s - %(lineno)d - %(message)s')
+            file_handler.setFormatter(file_formatter)
+            console_handler.setFormatter(console_formatter)
 
-        # generate log separator
+            # Add handlers to the logger
+            logger.addHandler(file_handler)
+            logger.addHandler(console_handler)
+
+        self.logger = logger
 
     def get_logger(self):
         """

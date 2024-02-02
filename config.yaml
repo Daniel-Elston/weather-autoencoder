@@ -1,13 +1,48 @@
 # my_config.yaml
 
+processed_data: 'data/processed/processed_data.xlsx'
+
 # Paths
-data_path: data/raw/
-data_path_1: data/raw/daily_weather.parquet
-data_path_2: data/raw/london_weather.csv
+data_paths:
+  - data/raw/daily_weather.parquet
+  - data/raw/london_weather.csv
+  - data/raw/countries.csv
+  - data/raw/cities.csv
+
 results_path: 'results/res1.json'
+
+# Variables
+variables: ['avg_sea_level_pres_hpa','avg_temp_c', 'precipitation_mm']
+windows: [7, 30]
 
 # Log Parameters
 logging:
   level: INFO                         # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 ##############################################################
+
+# Processng
+processing:
+  to_impute:
+    - avg_temp_c
+    - precipitation_mm
+    - avg_sea_level_pres_hpa
+    - min_temp_c
+    - max_temp_c
+    - snow_depth_mm
+  impute_with:
+    - mean_temp
+    - precipitation
+    - pressure
+    - min_temp
+    - max_temp
+    - snow_depth
+  impute_zero_cols:
+    - avg_wind_speed_kmh
+    - snow_depth_mm
+  impute_mean_cols:
+    - avg_sea_level_pres_hpa
+    - min_temp_c
+    - max_temp_c
+  impute_bfill_cols:
+    - precipitation_mm
