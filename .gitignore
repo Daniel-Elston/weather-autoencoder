@@ -1,4 +1,8 @@
 
+notebooks/*
+src/data/temp_process.py
+data/raw/*
+data/*.parquet
 
 
 # Byte-compiled / optimized / DLL files

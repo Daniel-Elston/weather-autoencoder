@@ -33,7 +33,7 @@ class FileLoader:
                 return self._load_json(file_path)
             elif file_ext == 'pkl':
                 return self._load_pickle(file_path)
-            elif file_ext == 'parq':
+            elif file_ext in ['parq', 'parquet']:
                 return self._load_parquet(file_path)
             elif file_ext == 'yaml':
                 return self._load_yaml(file_path)

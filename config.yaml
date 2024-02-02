@@ -1,8 +1,10 @@
 # my_config.yaml
 
 # Paths
-data_path: 'data/sdo/sensor.parq'
-results_path: 'results/iso1.json'
+data_path: data/raw/
+data_path_1: data/raw/daily_weather.parquet
+data_path_2: data/raw/london_weather.csv
+results_path: 'results/res1.json'
 
 # Log Parameters
 logging:

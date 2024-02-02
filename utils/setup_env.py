@@ -7,7 +7,7 @@ import yaml
 
 
 def setup_project_env(
-        config_filename='my_config.yaml', env_filename='.env'):
+        config_filename='config.yaml', env_filename='.env'):
     """
     Set up the project environment and load configuration.
 
