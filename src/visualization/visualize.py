@@ -14,26 +14,21 @@ project_dir, config = setup_project_env()
 
 
 class VisualiseFull:
-    def __init__(self, df):
-        self.df = df  # Assuming df is your DataFrame
-        self.df['day_of_year'] = self.df['date'].dt.dayofyear
-        self.df['month_year'] = self.df['date'].dt.to_period('M')
-        self.df['season_year'] = self.df['year'].astype(
-            str)+'-'+self.df['season_num'].astype(str)
-        self.df['season_start_month'] = self.df['season_num'].map(
-            {1: '12', 2: '03', 3: '06', 4: '09'})
-        self.df['season_dt'] = pd.to_datetime(self.df['year'].astype(
-            str) + '-' + self.df['season_start_month'].astype(str) + '-01')
+    def __init__(self, config, df):
+        self.config = config
+        self.df = df
+        self.fig_path = config['fig_path']
 
     def prepare_data_day(self, variable):
         return self.df['date'], self.df[variable]
 
     def prepare_data_month(self, variable):
         monthly_avg = self.df.groupby('month_year')[variable].mean()
-        return monthly_avg.index.to_timestamp(), monthly_avg
+        # idx = monthly_avg.index.to_timestamp()
+        idx = pd.to_datetime(monthly_avg.index)
+        return idx, monthly_avg
 
     def prepare_data_season(self, variable):
-        # .reindex(['Winter', 'Spring', 'Summer', 'Autumn'])
         season_avg = self.df.groupby('season_dt')[variable].mean()
         return season_avg.index, season_avg
 
@@ -41,7 +36,7 @@ class VisualiseFull:
         yearly_avg = self.df.groupby('year')[variable].mean()
         return yearly_avg.index, yearly_avg
 
-    def plot_variable(self, ax, x, y, variable, time_scale):
+    def plot_variable(self, ax, x, y, variable, time_scale, save=False):
         ax.plot(x, y, linewidth=0.5)
         ax.set_xlabel('Date' if time_scale != 'year' else 'Year')
         ax.set_ylabel(variable)
@@ -49,9 +44,9 @@ class VisualiseFull:
         ax.grid(True)
         for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
                      ax.get_xticklabels() + ax.get_yticklabels()):
-            item.set_fontsize(10)
+            item.set_fontsize(5)
 
-    def plot_var_full(self, time_scale):
+    def plot_var_full(self, time_scale, save=False):
         variables = ['avg_sea_level_pres_hpa',
                      'avg_temp_c', 'precipitation_mm']
         fig, axes = plt.subplots(nrows=len(variables),
@@ -60,7 +55,7 @@ class VisualiseFull:
         for ax, variable in zip(axes, variables):
             if time_scale == 'day':
                 x, y = self.prepare_data_day(
-                    variable)  # Use the updated method
+                    variable)
             elif time_scale == 'month':
                 x, y = self.prepare_data_month(variable)
             elif time_scale == 'season':
@@ -72,9 +67,11 @@ class VisualiseFull:
 
             self.plot_variable(ax, x, y, variable, time_scale)
         plt.tight_layout()
-        plt.show()
+        # plt.show()
+        if save:
+            fig.savefig(f'{self.fig_path}_fig1')
 
-    def plot_rolling_means(self, windows, time_scale):
+    def plot_rolling_means(self, windows, time_scale, save=False):
         variables = ['avg_sea_level_pres_hpa',
                      'avg_temp_c', 'precipitation_mm']
         fig, axes = plt.subplots(nrows=len(variables),
@@ -97,18 +94,16 @@ class VisualiseFull:
 
                 self.plot_variable(axes[i, j], x, y, rolling_var, time_scale)
         plt.tight_layout()
-        plt.show()
+        # plt.show()
+        if save:
+            fig.savefig(f'{self.fig_path}_fig2')
 
 
 class VisualiseByYear:
-    def __init__(self, df):
+    def __init__(self, config, df):
+        self.config = config
         self.df = df
-        self.df['date'] = pd.to_datetime(self.df['date'])
-        self.df['day_of_year'] = self.df['date'].dt.dayofyear
-        self.df['month_year'] = self.df['date'].dt.to_period('M')
-        self.df['season_year'] = self.df['year'].astype(
-            str) + '-' + self.df['season'].astype(str)
-        self.df['year'] = self.df['date'].dt.year
+        self.fig_path = config['fig_path']
 
     def prepare_data_month(self, df_year, variable):
         monthly_avg = df_year.groupby(df_year['date'].dt.month)[
@@ -123,27 +118,25 @@ class VisualiseByYear:
     def prepare_data_day(self, df_year, variable):
         return df_year['day_of_year'], df_year[variable]
 
-    def plot_variable(self, ax, x, y, variable, title):
+    def plot_variable(self, ax, x, y, variable, title, save=False):
         ax.plot(x, y, linewidth=0.5)
         ax.set_ylabel(variable)
         ax.set_title(title)
         ax.grid(True)
         for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
-            item.set_fontsize(10)
+            item.set_fontsize(5)
 
-    def plot_axis(self, time_scale):
+    def plot_axis(self, time_scale, save=False):
         variables = ['avg_sea_level_pres_hpa',
                      'avg_temp_c', 'precipitation_mm']
         fig, axes = plt.subplots(nrows=len(variables),
                                  ncols=1, figsize=(18, 12))
 
         for ax, variable in zip(axes, variables):
-            # Sort years if needed
             unique_years = sorted(self.df['year'].unique())
             for year in unique_years:
                 df_year = self.df[self.df['year'] == year]
                 if time_scale == 'month':
-                    # Adjust these methods if needed
                     x, y = self.prepare_data_month(df_year, variable)
                 elif time_scale == 'season':
                     x, y = self.prepare_data_season(df_year, variable)
@@ -155,9 +148,11 @@ class VisualiseByYear:
                 self.plot_variable(ax, x, y, variable, f'All {
                                    time_scale} - {time_scale.title()}')
         plt.tight_layout()
-        plt.show()
+        # plt.show()
+        if save:
+            fig.savefig(f'{self.fig_path}_fig3')
 
-    def plot_rolling_means(self, windows, time_scale):
+    def plot_rolling_means(self, windows, time_scale, save=False):
         variables = ['avg_sea_level_pres_hpa',
                      'avg_temp_c', 'precipitation_mm']
         fig, axes = plt.subplots(nrows=len(variables),
@@ -184,20 +179,18 @@ class VisualiseByYear:
                     self.plot_variable(axes[i][j], x, y, variable, f'All {
                                        time_scale} - Rolling {window}')
         plt.tight_layout()
-        plt.show()
+        # plt.show()
+        if save:
+            fig.savefig(f'{self.fig_path}_fig4')
 
 
 class VisualiseOther:
-    def __init__(self, df):
+    def __init__(self, config, df):
+        self.config = config
         self.df = df
-        self.df['date'] = pd.to_datetime(self.df['date'])
-        self.df['day_of_year'] = self.df['date'].dt.dayofyear
-        self.df['month_year'] = self.df['date'].dt.to_period('M')
-        self.df['season_year'] = self.df['year'].astype(
-            str) + '-' + self.df['season'].astype(str)
-        self.df['year'] = self.df['date'].dt.year
+        self.fig_path = config['fig_path']
 
-    def plot_decade_var(self, variable, plt_type, inc_err):
+    def plot_decade_var(self, variable, plt_type, inc_err, save=False):
         plt.figure(figsize=(18, 10))
         self.df['decade'] = (self.df['year'] // 10)*10
         decades = self.df['decade'].unique()
@@ -238,9 +231,12 @@ class VisualiseOther:
         plt.xticks(range(1, 13))
         plt.legend()
         plt.grid(True)
-        plt.show()
+        # plt.show()
 
-    def periodic_stats(self, variable, freq, stat):
+        if save:
+            plt.savefig(f'{self.fig_path}_fig5')
+
+    def periodic_stats(self, variable, freq, stat, save=False):
         # Stores
         mean_store = {}
         std_store = {}
@@ -275,10 +271,12 @@ class VisualiseOther:
         plt.ylabel(f'CV of {variable}')
         plt.title(f'{freq} CV of {variable}')
         plt.grid(True)
-        plt.show()
+        # plt.show()
+        if save:
+            plt.savefig(f'{self.fig_path}_fig6')
         return mean_store, std_store, cv_store
 
-    def plot_grouped_years(self, variable, agg_type, group_1, group_2):
+    def plot_grouped_years(self, variable, agg_type, group_1, group_2, save=False):
         plt.figure(figsize=(18, 12))
         # Calc means
         group_1_mean = self.df[self.df['year'].isin(group_1)].groupby('month')[
@@ -307,4 +305,6 @@ class VisualiseOther:
                    'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
         plt.legend()
         plt.grid(True)
-        plt.show()
+        # plt.show()
+        if save:
+            plt.savefig(f'{self.fig_path}_fig7')

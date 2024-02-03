@@ -1,6 +1,7 @@
 # my_config.yaml
 
 processed_data: 'data/processed/processed_data.xlsx'
+fig_path: reports/figures/
 
 # Paths
 data_paths:
