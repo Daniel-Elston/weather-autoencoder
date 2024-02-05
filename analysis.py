@@ -17,9 +17,10 @@ warnings.filterwarnings("ignore")
 class AnalyseData:
     def __init__(self, config, df):
         self.config = config
+        self.loader = FileLoader()
         self.logger = Logger(
             'AnalyseDataLog', f'{Path(__file__).stem}.log').get_logger()
-        self.df = df
+        self.df = None
 
     def plot_full_timescale(self):
         vis_full = VisualiseFull(self.config, self.df)
@@ -54,8 +55,8 @@ class AnalyseData:
 
     def main(self):
         self.logger.info('Running analysis')
-        file_loader = FileLoader()
-        self.df = file_loader.load_file(self.config['processed_data'])
+        self.logger.info('Loading data...')
+        self.df = self.loader.load_file(self.config['processed_data'])
 
         self.logger.info('Plotting data')
         self.plot_full_timescale()
@@ -63,7 +64,7 @@ class AnalyseData:
         self.plot_other()
 
         self.logger.info(f'Plots saved to file path: {
-                         self.config["plot_save_path"]}')
+                         self.config["fig_path"]}')
         self.logger.info('Finished analysis')
 
 
