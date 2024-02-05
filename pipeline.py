@@ -8,7 +8,15 @@ from src.data.processing import Processor
 from src.features.build_features import BuildFeatures
 from utils.file_log import Logger
 from utils.file_save import FileSaver
+from utils.my_utils import dataset_stats
 from utils.setup_env import setup_project_env
+# from src.data.transforms import Differencing
+# from src.data.transforms import StandardScaler
+# from src.data.transforms import ToTensor
+# from src.data.transforms import Windowing
+# from src.data.transforms import MinMaxScaler
+# from torchvision.transforms import Compose
+
 warnings.filterwarnings("ignore")
 
 
@@ -59,13 +67,22 @@ class DataPipeline:
     def main(self):
         self.logger.info('Running pipeline')
         df1, df2 = self.run_load_data()
+        print(df1.head())
 
         df = self.run_initial_process(df1, df2)
         df = self.run_build_features(df)
         df = self.run_further_process(df)
-        train_df, test_df = self.split_data(df)
-
         self.run_save_data(df, self.config['processed_data'])
+
+        train_df, test_df = self.split_data(df)
+        means, stds, mins, maxs = dataset_stats(train_df)
+
+        # transform = Compose([
+        #     ToTensor(),  # Convert dataframes/ndarrays to PyTorch tensors
+        #     Windowing(window_size=5),
+        #     Differencing(),
+        #     StandardScaler(means, stds)
+        # ])
 
         self.logger.info('Finished pipeline')
 
@@ -74,3 +91,15 @@ if __name__ == '__main__':
     project_dir, config = setup_project_env()
     pipeline = DataPipeline(config)
     pipeline.main()
+
+
+# custom_dataset.py
+# transforms.py
+
+# first split data
+# normalise test and training sets
+# create make_dataset.py
+# CUstomDataset class
+# ToTensor class
+# MinMaxScaler class (for empirical eval.)
+# ZScoreScaler class (for empirical eval.)
