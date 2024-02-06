@@ -75,6 +75,6 @@ class ToTensor:
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, sample):
-        self.logger.debug(f'Converting sample to tensor: {type(sample)}')
-        self.logger.info(f'THIS IS INFO: {sample}')
+        # self.logger.debug(f'Converting sample to tensor: {type(sample)}')
+        # self.logger.info(f'THIS IS INFO: {sample}')
         return torch.from_numpy(sample).float()

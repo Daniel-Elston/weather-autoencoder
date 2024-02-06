@@ -4,6 +4,7 @@ src/data/temp_process.py
 data/raw/*
 data/*.parquet
 data/*
+utils/os_view.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

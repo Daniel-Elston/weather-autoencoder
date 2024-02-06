@@ -21,6 +21,7 @@ class FileSaver:
         Save file to local path
         """
         file_ext = file_path.split('.')[-1]
+        self.logger.info('Saving file: %s', file_path)
 
         try:
             if file_ext in ['xls', 'xlsx', 'xlsm', 'xlsb']:

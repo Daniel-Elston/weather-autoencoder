@@ -30,6 +30,7 @@ class RawDataLoader:
         return self.df1, self.df2, self.df3, self.df4
 
     def load_data_chunks(self):
+        self.logger.info('Loading file: %s', self.data_paths[0])
         self.logger.debug(f'Loading dataset 1: {self.data_paths[0]}')
         try:
             daily_weather = pq.ParquetFile(self.data_paths[0])

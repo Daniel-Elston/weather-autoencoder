@@ -86,13 +86,9 @@ class Processor(RawDataLoader):
     #     train_dataset, test_dataset = random_split(df, [train_size, test_size])
     #     return train_dataset, test_dataset
 
-    def split_data(self, df, input_variable):
-        self.logger.info('Splitting data')
-        train_dataset, test_dataset = train_test_split(
-            df[input_variable], test_size=0.2, shuffle=False)
-        return train_dataset, test_dataset  # X_train, X_test
-
     def initial_process(self, df1, df2):
+        self.logger.info('Processing and Building Features')
+        self.logger.debug(f'Preprocessing shape: {df1.shape}')
         df1, df2 = pressure_to_kPa(df1, df2)
 
         df1 = self.process_dt_df1(df1)
@@ -106,7 +102,7 @@ class Processor(RawDataLoader):
         df = self.fillna_reindexed_nans(df)
         return df
 
-    def further_process(self, df, input_variable):
+    def further_process(self, df):
         impute_zero_cols = self.config['processing']['impute_zero_cols']
         impute_mean_cols = self.config['processing']['impute_mean_cols']
         impute_bfill_cols = self.config['processing']['impute_bfill_cols']
@@ -115,5 +111,17 @@ class Processor(RawDataLoader):
         self.fillna_mean(df, impute_mean_cols)
         self.fillna_bfill(df, impute_bfill_cols)
 
-        self.split_data(df, input_variable)
+        df = df.rename(
+            columns={'avg_sea_level_pres_hpa': 'avg_sea_level_pres_kpa'})
+        df = df[self.config['processing']['keep_cols']]
+
+        self.logger.debug(f'Postprocessing shape: {df.shape}')
         return df
+
+    def split_data(self, df, input_variable):
+        self.logger.debug('Splitting data. Original shape: %s', df.shape)
+        train_dataset, test_dataset = train_test_split(
+            df[input_variable], test_size=0.2, shuffle=False)
+        self.logger.debug('Train shape: %s', train_dataset.shape)
+        self.logger.debug('Test shape: %s', test_dataset.shape)
+        return train_dataset, test_dataset  # X_train, X_test

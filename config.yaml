@@ -1,14 +1,13 @@
 # my_config.yaml
 
-
+##########################################################################################
 
 # VARS
 input_variable: 'avg_temp_c'
 variables: ['avg_sea_level_pres_hpa','avg_temp_c', 'precipitation_mm']
 windows: [7, 30]
 
-##############################################################
-
+##########################################################################################
 
 # PATHS
 data_paths:
@@ -20,13 +19,17 @@ data_paths:
 results_path: 'results/res1.json'
 
 processed_data: 'data/processed/processed_data.xlsx'
+processed_data_comp: 'data/processed/processed_data.parq'
 fig_path: reports/figures/
+
+##########################################################################################
 
 # LOGGING
 logging:
   file_level: DEBUG
   console_level: DEBUG
 
+##########################################################################################
 
 # PROCESSING
 processing:
@@ -53,3 +56,19 @@ processing:
     - max_temp_c
   impute_bfill_cols:
     - precipitation_mm
+  keep_cols:
+    - date
+    - year
+    - month
+    - day
+    - season_num
+    - day_of_year
+    - avg_temp_c
+    - min_temp_c
+    - max_temp_c
+    - precipitation_mm
+    - snow_depth_mm
+    - avg_wind_speed_kmh
+    - avg_sea_level_pres_kpa
+
+##########################################################################################
