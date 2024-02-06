@@ -3,17 +3,18 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
-from torch.utils.data import random_split
+from sklearn.model_selection import train_test_split
 
-from src.data.load_data import DataLoader
+from src.data.load_data import RawDataLoader
 from utils.file_log import Logger
 from utils.my_utils import pressure_to_kPa
 from utils.setup_env import setup_project_env
+# from torch.utils.data import random_split
 
 project_dir, config = setup_project_env()
 
 
-class Processor(DataLoader):
+class Processor(RawDataLoader):
     def __init__(self, config):
         super().__init__(config)
         self.config = config
@@ -83,14 +84,20 @@ class Processor(DataLoader):
         df[cols] = df[cols].ffill()
         return df
 
-    def split_data(self, df):
-        self.logger.info('Splitting data')
-        df_size = len(df)
-        train_size = int(0.8 * df_size)
-        test_size = df_size - train_size
+    # def split_data(self, df):
+    #     self.logger.info('Splitting data')
+    #     df_size = len(df)
+    #     train_size = int(0.8 * df_size)
+    #     test_size = df_size - train_size
 
-        train_dataset, test_dataset = random_split(df, [train_size, test_size])
-        return train_dataset, test_dataset
+    #     train_dataset, test_dataset = random_split(df, [train_size, test_size])
+    #     return train_dataset, test_dataset
+
+    def split_data(self, df, input_variable):
+        self.logger.info('Splitting data')
+        train_dataset, test_dataset = train_test_split(
+            df[input_variable], test_size=0.2, shuffle=False)
+        return train_dataset, test_dataset  # X_train, X_test
 
     def initial_process(self, df1, df2):
         df1, df2 = pressure_to_kPa(df1, df2)

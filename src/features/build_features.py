@@ -4,14 +4,14 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.data.load_data import DataLoader
+from src.data.load_data import RawDataLoader
 from utils.file_log import Logger
 from utils.setup_env import setup_project_env
 
 project_dir, config = setup_project_env()
 
 
-class BuildFeatures(DataLoader):
+class BuildFeatures(RawDataLoader):
     def __init__(self, config):
         super().__init__(config)
         self.logger = Logger(

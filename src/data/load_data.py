@@ -14,12 +14,12 @@ from utils.setup_env import setup_project_env
 project_dir, config = setup_project_env()
 
 
-class DataLoader:
+class RawDataLoader:
     def __init__(self, config):
         self.config = config
         self.loader = FileLoader()
         self.logger = Logger(
-            'DataLoaderLog', f'{Path(__file__).stem}.log').get_logger()
+            'RawDataLoaderLog', f'{Path(__file__).stem}.log').get_logger()
         self.data_paths = config['data_paths']
         self.data = []
 

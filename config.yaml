@@ -13,12 +13,14 @@ data_paths:
 results_path: 'results/res1.json'
 
 # Variables
+input_variable: 'avg_temp_c'
 variables: ['avg_sea_level_pres_hpa','avg_temp_c', 'precipitation_mm']
 windows: [7, 30]
 
 # Log Parameters
 logging:
-  level: INFO                         # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file_level: "DEBUG"
+  console_level: "DEBUG"                         # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 ##############################################################
 

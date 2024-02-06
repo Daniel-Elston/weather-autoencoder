@@ -6,12 +6,8 @@ from utils.setup_env import setup_project_env
 project_dir, config = setup_project_env()
 
 
-def dataset_stats(df):
-    means = df.mean()
-    stds = df.std()
-    mins = df.min()
-    maxs = df.max()
-    return means, stds, mins, maxs
+def dataset_stats(data):
+    return data.mean(), data.std(), data.min(), data.max()
 
 
 def str_contains(df, col, pattern):
@@ -33,7 +29,7 @@ def pressure_to_kPa(df1, df2):
 
 
 def n_nans(df):
+
     for col in df.columns:
-        print(
-            f'{col}: {df[col].isna().sum()}, {round(
-                ((df[col].isna().sum()/len(df))*100), 3)}')
+        df_nans = df[col].isna().sum()
+        print(f'{col}: {df_nans}, {round(((df_nans/len(df))*100), 3)}')
