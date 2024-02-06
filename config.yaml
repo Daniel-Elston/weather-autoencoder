@@ -16,18 +16,19 @@ data_paths:
   - data/raw/countries.csv
   - data/raw/cities.csv
 
-results_path: 'results/res1.json'
-
 processed_data: 'data/processed/processed_data.xlsx'
 processed_data_comp: 'data/processed/processed_data.parq'
+
+results_path: 'results/res1.json'
+
 fig_path: reports/figures/
 
 ##########################################################################################
 
 # LOGGING
 logging:
-  file_level: DEBUG
-  console_level: DEBUG
+  file_level: INFO
+  console_level: INFO
 
 ##########################################################################################
 

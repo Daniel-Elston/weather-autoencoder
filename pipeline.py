@@ -49,17 +49,13 @@ class DataPipeline:
         df = self.processor.further_process(df)
         if save:
             self.saver.save_file(df, self.config['processed_data'])
-        return df
-        # train_df, test_df = self.processor.split_data(df, self.input_var)
-        # return train_df, test_df
+        train_df, test_df = self.processor.split_data(df, self.input_var)
+        return train_df, test_df
 
     def main(self):
         self.logger.info('Running pipeline')
         df1, df2 = self.run_load_data()
-
-        df = self.run_process_data(df1, df2, save=True)
-        df = self.loader.load_file(self.config['processed_data_comp'])
-        train_df, test_df = self.processor.split_data(df, self.input_var)
+        train_df, test_df = self.run_process_data(df1, df2, save=True)
         means, stds, mins, maxs = dataset_stats(train_df)
 
         transform = Compose([
@@ -70,12 +66,13 @@ class DataPipeline:
         ])
 
         train_dataset = WeatherDataset(dataframe=train_df, transform=transform)
-        # test_dataset = WeatherDataset(dataframe=test_df, transform=transform)
+        test_dataset = WeatherDataset(dataframe=test_df, transform=transform)
 
         train_loader = DataLoader(train_dataset, batch_size=32, shuffle=False)
-        # test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+        test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
         OSView().get_visual(train_df, train_loader)
+        OSView().get_visual(test_df, test_loader)
         self.logger.info('Finished pipeline')
 
     def test(self):
