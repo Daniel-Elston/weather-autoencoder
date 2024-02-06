@@ -10,7 +10,7 @@ from utils.setup_env import setup_project_env
 warnings.simplefilter(action='ignore', category=FutureWarning)
 pd.options.mode.chained_assignment = None
 
-project_dir, config = setup_project_env()
+project_dir, config, setup_logs = setup_project_env()
 
 
 class VisualiseFull:

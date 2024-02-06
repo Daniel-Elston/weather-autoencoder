@@ -1,27 +1,24 @@
 from __future__ import annotations
 
-from pathlib import Path
+import logging
 
 import pandas as pd
 
 from src.data.load_data import RawDataLoader
-from utils.file_log import Logger
 from utils.setup_env import setup_project_env
 
-project_dir, config = setup_project_env()
+project_dir, config, setup_logs = setup_project_env()
 
 
 class BuildFeatures(RawDataLoader):
     def __init__(self, config):
         super().__init__(config)
-        self.logger = Logger(
-            'BuildFeaturesLog', f'{Path(__file__).stem}.log').get_logger()
         self.config = config
         self.variables = config['variables']
         self.windows = config['windows']
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def build_dt_features(self, df):
-        self.logger.info('Building datetime features')
         df['year'] = pd.to_datetime(df['date']).dt.year
         df['month'] = pd.to_datetime(df['date']).dt.month
         df['day'] = pd.to_datetime(df['date']).dt.day

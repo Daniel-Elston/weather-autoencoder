@@ -1,21 +1,18 @@
 from __future__ import annotations
 
 import json
+import logging
 import pickle
-from pathlib import Path
 
 import pandas as pd
 import pyarrow.parquet as pq
 import yaml
-
-from utils.file_log import Logger
 # import feather
 
 
 class FileLoader:
     def __init__(self):
-        self.logger = Logger(f'{self.__class__.__name__}',
-                             f'{Path(__file__).stem}.log').get_logger()
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def load_file(self, file_path, sheets=None):
         """

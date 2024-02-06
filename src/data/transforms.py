@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from pathlib import Path
+import logging
 
 import numpy as np
 import torch
 
-from utils.file_log import Logger
 from utils.setup_env import setup_project_env
-project_dir, config = setup_project_env()
+project_dir, config, setup_logs = setup_project_env()
 
 
 class Windowing:
@@ -15,17 +14,16 @@ class Windowing:
 
     def __init__(self, window_size):
         self.window_size = window_size
-        self.logger = Logger(
-            'WindowingLog', f'{Path(__file__).stem}.log').get_logger()
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, data):
-        self.logger.info(f'Generating windows of size: {self.window_size}')
+        self.logger.debug(f'Generating windows of size: {self.window_size}')
         windows = []
         for i in range(len(data) - self.window_size + 1):
             window = data[i:i + self.window_size]
             windows.append(window)
         print("Windowing applied:", windows)
-        # self.logger.info('Windowing applied: %s', windows[0])
+        # self.logger.debug('Windowing applied: %s', windows[0])
         return np.array(windows)
 
 
@@ -33,8 +31,7 @@ class Differencing:
     """Calculate the difference between consecutive data points."""
 
     def __init__(self):
-        self.logger = Logger(
-            'DifferencingLog', f'{Path(__file__).stem}.log').get_logger()
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, data):
         self.logger.info(f'Aplying differencing to sample: {type(data)}')
@@ -47,11 +44,10 @@ class StandardScaler:
     def __init__(self, mean, std):
         self.mean = mean
         self.std = std
-        self.logger = Logger(
-            'StandardScalerLog', f'{Path(__file__).stem}.log').get_logger()
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, tensor):
-        # self.logger.info(f'Scaling sample: {type(tensor)}')
+        self.logger.debug(f'Scaling sample: {type(tensor)}')
         return (tensor - self.mean) / self.std
 
 
@@ -62,11 +58,10 @@ class MinMaxScaler:
         self.min_val = min_val
         self.max_val = max_val
         self.range = feature_range
-        self.logger = Logger(
-            'MinMaxScalerLog', f'{Path(__file__).stem}.log').get_logger()
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, tensor):
-        # self.logger.info(f'Scaling sample: {type(tensor)}')
+        self.logger.debug(f'Scaling sample: {type(tensor)}')
         tensor = (tensor - self.min_val) / (self.max_val - self.min_val)
         min_range, max_range = self.range
         tensor = tensor * (max_range - min_range) + min_range
@@ -77,8 +72,7 @@ class ToTensor:
     """Convert ndarrays in sample to Tensors."""
 
     def __init__(self):
-        self.logger = Logger(
-            'ToTensorLog', f'{Path(__file__).stem}.log').get_logger()
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, sample):
         self.logger.debug(f'Converting sample to tensor: {type(sample)}')

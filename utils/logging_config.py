@@ -4,21 +4,26 @@ import logging.config
 from pathlib import Path
 
 
-def setup_logging(
-        project_dir, log_file_name,
-        file_level='DEBUG', console_level='DEBUG'):
+def setup_logging(name, project_dir, log_file_name, config):
+    # file_level='DEBUG', console_level='DEBUG'):
     """Setup logging configuration with dynamic log file naming and levels."""
 
     log_file_path = Path(project_dir, 'log', log_file_name)
     log_file_path.parent.mkdir(parents=True, exist_ok=True)
 
+    file_level = config['logging']['file_level']
+    console_level = config['logging']['console_level']
+
+    # logger = logging.getLogger(name)
+    # if not logger.handlers:
+
     LOGGING_CONFIG = {
         'version': 1,
-        'disable_existing_loggers': True,
+        'disable_existing_loggers': False,
         'formatters': {
             'detailed': {
                 'format': '%(pathname)s - %(asctime)s - %(levelname)s - %(filename)s'
-                          ' - %(lineno)d - %(module)s - %(funcName)s - %(name)s - %(message)s',
+                ' - %(lineno)d - %(module)s - %(funcName)s - %(name)s - %(message)s',
                 'datefmt': '%Y-%m-%d %H:%M:%S',
             },
             'simple': {

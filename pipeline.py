@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import logging.config
+import logging
 import warnings
-from pathlib import Path
 
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose
@@ -17,12 +16,11 @@ from utils.file_load import FileLoader
 from utils.file_save import FileSaver
 from utils.my_utils import dataset_stats
 from utils.setup_env import setup_project_env
-from utils.setup_logging import setup_logging
+# import logging.config
 # import numpy as np
 # from src.data.transforms import Differencing
 # from src.data.transforms import MinMaxScaler
 # from src.data.transforms import Windowing
-# from utils.file_log import Logger
 warnings.filterwarnings("ignore")
 
 
@@ -35,51 +33,44 @@ class DataPipeline:
         self.feature_builder = BuildFeatures(self.config)
         self.loader = FileLoader()
         self.saver = FileSaver()
-        # self.logger = Logger(
-        #     'PipelineLog', f'{Path(__file__).stem}.log').get_logger()
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def run_load_data(self):
-        # self.logger.info('Loading data...')
+        self.logger.info('Loading data...')
         self.raw_loader.load_data()
         df1, df2, df3, df4 = self.raw_loader.get_data()
         self.raw_loader.get_data_info(df1, info='shape')
-        # self.logger.info('Data loaded')
         return df1, df2
 
     def run_initial_process(self, df1, df2):
-        # self.logger.info('Initial processing')
+        self.logger.info('Processing and Building Features')
         df = self.processor.initial_process(df1, df2)
         return df
 
     def run_build_features(self, df):
-        # self.logger.info('Building features')
         df = self.feature_builder.build_dt_features(df)
         return df
 
-    def run_further_process(self, df):
-        # self.logger.info('Further processing')
-        df = self.processor.further_process(df)
+    def run_further_process(self, df, input_variable):
+        df = self.processor.further_process(df, input_variable)
         return df
 
     def split_data(self, df, input_variable):
-        # self.logger.info('Splitting data')
         train, test = self.processor.split_data(df, input_variable)
         return train, test
 
     def run_save_data(self, df, path):
-        # self.logger.info('Saving data...')
+        self.logger.info(f'Saving data to {path}')
         self.saver.save_file(df, path)
-        # self.logger.info(f'Data saved to {path}')
 
     def main(self):
-        # self.logger.info('Running pipeline')
-        # df1, df2 = self.run_load_data()
-        # print(df1.head())
+        self.logger.info('Running pipeline')
+        df1, df2 = self.run_load_data()
+        print(df1.head())
 
-        # df = self.run_initial_process(df1, df2)
-        # df = self.run_build_features(df)
-        # df = self.run_further_process(df)
+        df = self.run_initial_process(df1, df2)
+        df = self.run_build_features(df)
+        df = self.run_further_process(df, self.config['input_variable'])
 
         # self.run_save_data(df, self.config['processed_data'])
         df = self.loader.load_file(self.config['processed_data'])
@@ -114,7 +105,7 @@ class DataPipeline:
             print("Batch shape:", batch.shape)
             break  # Only show the first batch
 
-        # self.logger.info('Finished pipeline')
+        self.logger.info('Finished pipeline')
 
     def test(self):
 
@@ -125,9 +116,7 @@ class DataPipeline:
 
 
 if __name__ == '__main__':
-    project_dir, config = setup_project_env()
-    setup_logging(project_dir, f'{Path(__file__).stem}.log')
-
+    project_dir, config, set_log = setup_project_env()
     pipeline = DataPipeline(config)
     pipeline.main()
     # pipeline.test()

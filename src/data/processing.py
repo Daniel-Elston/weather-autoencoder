@@ -1,40 +1,35 @@
 from __future__ import annotations
 
-from pathlib import Path
+import logging
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from src.data.load_data import RawDataLoader
-from utils.file_log import Logger
 from utils.my_utils import pressure_to_kPa
 from utils.setup_env import setup_project_env
 # from torch.utils.data import random_split
 
-project_dir, config = setup_project_env()
+project_dir, config, setup_logs = setup_project_env()
 
 
 class Processor(RawDataLoader):
     def __init__(self, config):
         super().__init__(config)
         self.config = config
-        self.logger = Logger(
-            'ProcessorLog', f'{Path(__file__).stem}.log').get_logger()
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def drop_cols(self, df):
-        self.logger.info('Dropping columns')
         df = df.drop(['avg_wind_dir_deg', 'peak_wind_gust_kmh',
                      'sunshine_total_min'], axis=1)
         return df
 
     def fillna_from_df2(self, df1, df2, to_impute, impute_with):
-        self.logger.info('Filling NaNs from df2')
         for df1_col, df2_col in zip(to_impute, impute_with):
             df1[df1_col] = df1[df1_col].fillna(df2[df2_col])
         return df1
 
     def process_dt_df1(self, df1):
-        self.logger.info('Processing df1 datetimes')
         df1 = df1[df1['date'] >= '1973-01-01']
 
         df1['date_idx'] = pd.to_datetime(df1['date'], format='%Y%m%d')
@@ -52,7 +47,6 @@ class Processor(RawDataLoader):
         return df1
 
     def process_dt_df2(self, df2):
-        self.logger.info('Processing df2 datetimes')
         df2.date = pd.to_datetime(df2['date'], format='%Y%m%d')
         df2['precipitation'] = df2['precipitation'].shift(periods=1)
 
@@ -68,7 +62,6 @@ class Processor(RawDataLoader):
         return df
 
     def fillna_assume_zero(self, df, cols):
-        self.logger.info('Filling further NaNs')
         df[cols] = df[cols].fillna(0)
         return df
 
@@ -113,7 +106,7 @@ class Processor(RawDataLoader):
         df = self.fillna_reindexed_nans(df)
         return df
 
-    def further_process(self, df):
+    def further_process(self, df, input_variable):
         impute_zero_cols = self.config['processing']['impute_zero_cols']
         impute_mean_cols = self.config['processing']['impute_mean_cols']
         impute_bfill_cols = self.config['processing']['impute_bfill_cols']
@@ -122,5 +115,5 @@ class Processor(RawDataLoader):
         self.fillna_mean(df, impute_mean_cols)
         self.fillna_bfill(df, impute_bfill_cols)
 
-        self.split_data(df)
+        self.split_data(df, input_variable)
         return df

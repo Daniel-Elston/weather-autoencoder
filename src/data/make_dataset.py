@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from pathlib import Path
+import logging
 
 import numpy as np
 from torch.utils.data import Dataset
 
-from utils.file_log import Logger
 from utils.setup_env import setup_project_env
 # import torch
-project_dir, config = setup_project_env()
+project_dir, config, setup_logs = setup_project_env()
 
 
 class WeatherDataset(Dataset):
@@ -18,8 +17,7 @@ class WeatherDataset(Dataset):
         self.dataframe = dataframe
         # self.variable = variable
         self.transform = transform
-        self.logger = Logger(
-            'MakeDatasetLog', f'{Path(__file__).stem}.log').get_logger()
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def __len__(self):
         return len(self.dataframe)
@@ -28,4 +26,5 @@ class WeatherDataset(Dataset):
         sample = np.array([self.dataframe.iloc[idx]])
         if self.transform:
             sample = self.transform(sample)
+        self.logger.debug(f'Index: {idx}, Sample: {sample}')
         return sample

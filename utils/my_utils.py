@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 from utils.setup_env import setup_project_env
-project_dir, config = setup_project_env()
+project_dir, config, setup_logs = setup_project_env()
 
 
 def dataset_stats(data):

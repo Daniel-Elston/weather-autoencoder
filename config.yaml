@@ -1,9 +1,16 @@
 # my_config.yaml
 
-processed_data: 'data/processed/processed_data.xlsx'
-fig_path: reports/figures/
 
-# Paths
+
+# VARS
+input_variable: 'avg_temp_c'
+variables: ['avg_sea_level_pres_hpa','avg_temp_c', 'precipitation_mm']
+windows: [7, 30]
+
+##############################################################
+
+
+# PATHS
 data_paths:
   - data/raw/daily_weather.parquet
   - data/raw/london_weather.csv
@@ -12,19 +19,16 @@ data_paths:
 
 results_path: 'results/res1.json'
 
-# Variables
-input_variable: 'avg_temp_c'
-variables: ['avg_sea_level_pres_hpa','avg_temp_c', 'precipitation_mm']
-windows: [7, 30]
+processed_data: 'data/processed/processed_data.xlsx'
+fig_path: reports/figures/
 
-# Log Parameters
+# LOGGING
 logging:
-  file_level: "DEBUG"
-  console_level: "DEBUG"                         # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file_level: DEBUG
+  console_level: DEBUG
 
-##############################################################
 
-# Processng
+# PROCESSING
 processing:
   to_impute:
     - avg_temp_c
