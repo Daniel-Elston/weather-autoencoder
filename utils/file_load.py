@@ -18,7 +18,7 @@ class FileLoader:
         """
         Load file from local path
         """
-        self.logger.info('Loading file: %s', file_path)
+        # self.logger.info('Loading file: %s', file_path)
 
         file_ext = file_path.split('.')[-1]
 

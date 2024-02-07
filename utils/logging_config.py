@@ -22,12 +22,12 @@ def setup_logging(name, project_dir, log_file_name, config):
         'disable_existing_loggers': False,
         'formatters': {
             'detailed': {
-                'format': '%(pathname)s - %(asctime)s - %(levelname)s - %(filename)s'
-                ' - %(lineno)d - %(module)s - %(funcName)s - %(name)s - %(message)s',
+                'format': '%(levelname)s - %(pathname)s - %(asctime)s - %(filename)s'
+                ' - %(lineno)d - %(module)s - %(name)s - %(funcName)s - %(message)s',
                 'datefmt': '%Y-%m-%d %H:%M:%S',
             },
             'simple': {
-                'format': '%(name)s - %(levelname)s - %(module)s - %(funcName)s - %(lineno)d - %(message)s',
+                'format': '%(levelname)s - %(module)s - %(name)s - %(funcName)s - %(lineno)d - %(message)s',
             },
         },
         'handlers': {

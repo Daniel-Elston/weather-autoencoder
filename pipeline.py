@@ -11,6 +11,7 @@ from src.data.make_dataset import WeatherDataset
 from src.data.processing import Processor
 from src.data.transforms import StandardScaler
 from src.data.transforms import ToTensor
+from src.data.transforms import Windowing
 from src.features.build_features import BuildFeatures
 from utils.file_load import FileLoader
 from utils.file_save import FileSaver
@@ -21,7 +22,6 @@ from utils.setup_env import setup_project_env
 # import numpy as np
 # from src.data.transforms import Differencing
 # from src.data.transforms import MinMaxScaler
-# from src.data.transforms import Windowing
 warnings.filterwarnings("ignore")
 
 
@@ -40,12 +40,12 @@ class DataPipeline:
     def run_load_data(self):
         self.raw_loader.load_data()
         df1, df2, df3, df4 = self.raw_loader.get_data()
-        self.raw_loader.get_data_info(df1, info='shape')
+        # self.raw_loader.get_data_info(df1, info='shape')
         return df1, df2
 
     def run_process_data(self, df1, df2, save=False):
         df = self.processor.initial_process(df1, df2)
-        df = self.feature_builder.build_dt_features(df)
+        df = self.feature_builder.build_features(df)
         df = self.processor.further_process(df)
         if save:
             self.saver.save_file(df, self.config['processed_data'])
@@ -53,27 +53,35 @@ class DataPipeline:
         return train_df, test_df
 
     def main(self):
-        self.logger.info('Running pipeline')
+        self.logger.info(
+            'Running pipeline ------------------------------------------------------------'
+        )
         df1, df2 = self.run_load_data()
         train_df, test_df = self.run_process_data(df1, df2, save=True)
         means, stds, mins, maxs = dataset_stats(train_df)
-
+        self.logger.info(
+            'Creating datasets/dataloaders ------------------------------------------------'
+        )
         transform = Compose([
-            # Windowing(window_size=5),
+            Windowing(window_size=14),
             # Differencing(),
             StandardScaler(means, stds),
             ToTensor(),
         ])
 
-        train_dataset = WeatherDataset(dataframe=train_df, transform=transform)
-        test_dataset = WeatherDataset(dataframe=test_df, transform=transform)
+        train_dataset = WeatherDataset(
+            series=train_df, window_size=14, transform=transform)
+        test_dataset = WeatherDataset(
+            series=test_df, window_size=14, transform=transform)
 
         train_loader = DataLoader(train_dataset, batch_size=32, shuffle=False)
         test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
         OSView().get_visual(train_df, train_loader)
         OSView().get_visual(test_df, test_loader)
-        self.logger.info('Finished pipeline')
+        self.logger.info(
+            'Finished pipeline -----------------------------------------------------------'
+        )
 
     def test(self):
         print('Testing pipeline')

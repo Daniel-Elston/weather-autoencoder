@@ -36,4 +36,5 @@ class BuildFeatures(RawDataLoader):
         return df
 
     def build_features(self, df):
+        self.logger.debug(f"Shape: {df.shape}, type: {type(df)}")
         return self.build_dt_features(df)

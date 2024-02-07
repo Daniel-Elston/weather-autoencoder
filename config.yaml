@@ -27,8 +27,8 @@ fig_path: reports/figures/
 
 # LOGGING
 logging:
-  file_level: INFO
-  console_level: INFO
+  file_level: DEBUG
+  console_level: DEBUG
 
 ##########################################################################################
 

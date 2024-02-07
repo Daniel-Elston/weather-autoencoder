@@ -27,11 +27,14 @@ class RawDataLoader:
 
     def get_data(self):
         self.df1 = pd.concat(self.data)
+        frames = [self.df1, self.df2, self.df3, self.df4]
+        for i, frame in enumerate(frames):
+            self.logger.debug(f"{self.data_paths[i]} loaded, Shape: {
+                              frame.shape}, type: {type(frame)}")
+
         return self.df1, self.df2, self.df3, self.df4
 
     def load_data_chunks(self):
-        self.logger.info('Loading file: %s', self.data_paths[0])
-        self.logger.debug(f'Loading dataset 1: {self.data_paths[0]}')
         try:
             daily_weather = pq.ParquetFile(self.data_paths[0])
 
@@ -49,22 +52,16 @@ class RawDataLoader:
                 self.data.append(df_city)
                 batch_num += 1
                 n_rows += df_city.shape[0]
-
-                self.logger.debug(
-                    f'Batch {batch_num} loaded, shape: {df_city.shape}')
         except Exception as e:
             self.logger.error(f'Error loading data: {e}')
             raise e
-        self.logger.debug(f'Dataset 0 loaded, N_rows: {n_rows}')
 
     def load_files(self):
         try:
             frame_store = []
             for i, path in enumerate(self.data_paths[1:], start=1):
-                self.logger.debug(f'Loading dataset {i}: {path}')
                 df = self.loader.load_file(path)
                 frame_store.append(df)
-                self.logger.debug(f'Dataset {i} loaded, shape: {df.shape}')
         except Exception as e:
             self.logger.error(f'Error loading data: {e}')
             raise e

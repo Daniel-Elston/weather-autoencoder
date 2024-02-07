@@ -22,7 +22,7 @@ class Windowing:
         for i in range(len(data) - self.window_size + 1):
             window = data[i:i + self.window_size]
             windows.append(window)
-        print("Windowing applied:", windows)
+        # print("Windowing applied:", windows)
         # self.logger.debug('Windowing applied: %s', windows[0])
         return np.array(windows)
 
@@ -47,8 +47,12 @@ class StandardScaler:
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, tensor):
-        self.logger.debug(f'Scaling sample: {type(tensor)}')
-        return (tensor - self.mean) / self.std
+        # self.logger.debug(f'Scaling sample: {type(tensor)}')
+        self.logger.debug(f"Input Shape: {tensor.shape}, type: {type(tensor)}")
+        tensor = (tensor - self.mean) / self.std
+        self.logger.debug(
+            f"Output Shape: {tensor.shape}, type: {type(tensor)}")
+        return tensor
 
 
 class MinMaxScaler:
@@ -75,6 +79,7 @@ class ToTensor:
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, sample):
-        # self.logger.debug(f'Converting sample to tensor: {type(sample)}')
-        # self.logger.info(f'THIS IS INFO: {sample}')
-        return torch.from_numpy(sample).float()
+        self.logger.debug(f'Converting sample to tensor: {type(sample)}')
+        tensor = torch.from_numpy(sample).float()
+        self.logger.debug(f'Sample converted to tensor: {type(tensor)}')
+        return tensor

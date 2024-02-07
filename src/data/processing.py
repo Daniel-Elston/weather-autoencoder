@@ -87,8 +87,8 @@ class Processor(RawDataLoader):
     #     return train_dataset, test_dataset
 
     def initial_process(self, df1, df2):
-        self.logger.info('Processing and Building Features')
-        self.logger.debug(f'Preprocessing shape: {df1.shape}')
+        self.logger.info(
+            'Processing and Building Features ------------------------------------------------------------')
         df1, df2 = pressure_to_kPa(df1, df2)
 
         df1 = self.process_dt_df1(df1)
@@ -100,6 +100,8 @@ class Processor(RawDataLoader):
 
         df = self.drop_cols(df)
         df = self.fillna_reindexed_nans(df)
+
+        self.logger.debug(f"Shape: {df.shape}, type: {type(df)}")
         return df
 
     def further_process(self, df):
@@ -115,13 +117,17 @@ class Processor(RawDataLoader):
             columns={'avg_sea_level_pres_hpa': 'avg_sea_level_pres_kpa'})
         df = df[self.config['processing']['keep_cols']]
 
-        self.logger.debug(f'Postprocessing shape: {df.shape}')
+        self.logger.debug(f"Shape: {df.shape}, type: {type(df)}")
         return df
 
     def split_data(self, df, input_variable):
-        self.logger.debug('Splitting data. Original shape: %s', df.shape)
-        train_dataset, test_dataset = train_test_split(
+        self.logger.debug(f"Shape: {df.shape}, type: {type(df)}")
+
+        train_df, test_df = train_test_split(
             df[input_variable], test_size=0.2, shuffle=False)
-        self.logger.debug('Train shape: %s', train_dataset.shape)
-        self.logger.debug('Test shape: %s', test_dataset.shape)
-        return train_dataset, test_dataset  # X_train, X_test
+
+        self.logger.debug(f"Train Split shape: {
+                          train_df.shape}, type: {type(df)}")
+        self.logger.debug(f"Test Split shape: {
+                          test_df.shape}, type: {type(df)}")
+        return train_df, test_df  # X_train, X_test
