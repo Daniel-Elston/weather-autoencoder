@@ -5,7 +5,6 @@ import logging
 from torch.utils.data import Dataset
 
 from utils.setup_env import setup_project_env
-# import torch
 project_dir, config, setup_logs = setup_project_env()
 
 
