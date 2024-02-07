@@ -29,8 +29,8 @@ class RawDataLoader:
         self.df1 = pd.concat(self.data)
         frames = [self.df1, self.df2, self.df3, self.df4]
         for i, frame in enumerate(frames):
-            self.logger.debug(f"{self.data_paths[i]} loaded, Shape: {
-                              frame.shape}, type: {type(frame)}")
+            self.logger.debug(
+                f"{self.data_paths[i]} loaded, Shape: {frame.shape}, type: {type(frame)}")
 
         return self.df1, self.df2, self.df3, self.df4
 

@@ -77,15 +77,6 @@ class Processor(RawDataLoader):
         df[cols] = df[cols].ffill()
         return df
 
-    # def split_data(self, df):
-    #     self.logger.info('Splitting data')
-    #     df_size = len(df)
-    #     train_size = int(0.8 * df_size)
-    #     test_size = df_size - train_size
-
-    #     train_dataset, test_dataset = random_split(df, [train_size, test_size])
-    #     return train_dataset, test_dataset
-
     def initial_process(self, df1, df2):
         self.logger.info(
             'Processing and Building Features ------------------------------------------------------------')
@@ -126,8 +117,8 @@ class Processor(RawDataLoader):
         train_df, test_df = train_test_split(
             df[input_variable], test_size=0.2, shuffle=False)
 
-        self.logger.debug(f"Train Split shape: {
-                          train_df.shape}, type: {type(df)}")
-        self.logger.debug(f"Test Split shape: {
-                          test_df.shape}, type: {type(df)}")
+        self.logger.debug(
+            f"Train Split shape: {train_df.shape}, type: {type(df)}")
+        self.logger.debug(
+            f"Test Split shape: {test_df.shape}, type: {type(df)}")
         return train_df, test_df  # X_train, X_test

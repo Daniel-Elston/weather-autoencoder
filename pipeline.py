@@ -18,8 +18,6 @@ from utils.file_save import FileSaver
 from utils.my_utils import dataset_stats
 from utils.os_view import OSView
 from utils.setup_env import setup_project_env
-# import logging.config
-# import numpy as np
 # from src.data.transforms import Differencing
 # from src.data.transforms import MinMaxScaler
 warnings.filterwarnings("ignore")
@@ -30,6 +28,12 @@ class DataPipeline:
         self.config = config
         self.data_paths = config['data_paths']
         self.input_var = self.config['input_variable']
+        self.window_size = self.config['window_size']
+        self.lr = self.config['lr']
+        self.weight_decay = self.config['weight_decay']
+        self.epochs = self.config['epochs']
+        self.device = self.config['device']
+
         self.raw_loader = RawDataLoader(self.config)
         self.processor = Processor(self.config)
         self.feature_builder = BuildFeatures(self.config)
@@ -63,25 +67,22 @@ class DataPipeline:
             'Creating datasets/dataloaders ------------------------------------------------'
         )
         transform = Compose([
-            Windowing(window_size=14),
+            Windowing(window_size=self.window_size),
             # Differencing(),
             StandardScaler(means, stds),
             ToTensor(),
         ])
 
         train_dataset = WeatherDataset(
-            series=train_df, window_size=14, transform=transform)
+            series=train_df, window_size=self.window_size, transform=transform)
         test_dataset = WeatherDataset(
-            series=test_df, window_size=14, transform=transform)
+            series=test_df, window_size=self.window_size, transform=transform)
 
-        train_loader = DataLoader(train_dataset, batch_size=32, shuffle=False)
-        test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+        train_loader = DataLoader(train_dataset, batch_size=8, shuffle=False)
+        test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False)
 
-        OSView().get_visual(train_df, train_loader)
-        OSView().get_visual(test_df, test_loader)
-        self.logger.info(
-            'Finished pipeline -----------------------------------------------------------'
-        )
+        OSView().get_visual(train_dataset, train_loader)
+        OSView().get_visual(test_dataset, test_loader)
 
     def test(self):
         print('Testing pipeline')

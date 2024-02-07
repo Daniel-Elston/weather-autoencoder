@@ -11,35 +11,43 @@ project_dir, config, setup_logs = setup_project_env()
 
 class Windowing:
     """Generate windows of consecutive data points."""
+    counter = 0
 
     def __init__(self, window_size):
         self.window_size = window_size
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, data):
-        self.logger.debug(f'Generating windows of size: {self.window_size}')
+
+        if Windowing.counter < 3:
+            self.logger.debug(f'Generating windows of size: {
+                              self.window_size}')
+
         windows = []
         for i in range(len(data) - self.window_size + 1):
             window = data[i:i + self.window_size]
             windows.append(window)
-        # print("Windowing applied:", windows)
-        # self.logger.debug('Windowing applied: %s', windows[0])
+        Windowing.counter += 1
         return np.array(windows)
 
 
 class Differencing:
     """Calculate the difference between consecutive data points."""
+    counter = 0
 
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, data):
-        self.logger.info(f'Aplying differencing to sample: {type(data)}')
+        if Differencing.counter < 3:
+            self.logger.info(f'Aplying differencing to sample: {type(data)}')
+        Differencing.counter += 1
         return np.diff(data, n=1, axis=0)
 
 
 class StandardScaler:
     """Normalize the sample"""
+    counter = 0
 
     def __init__(self, mean, std):
         self.mean = mean
@@ -47,11 +55,14 @@ class StandardScaler:
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, tensor):
-        # self.logger.debug(f'Scaling sample: {type(tensor)}')
-        self.logger.debug(f"Input Shape: {tensor.shape}, type: {type(tensor)}")
+        if StandardScaler.counter < 3:
+            self.logger.debug(
+                f"Input Shape: {tensor.shape}, type: {type(tensor)}")
         tensor = (tensor - self.mean) / self.std
-        self.logger.debug(
-            f"Output Shape: {tensor.shape}, type: {type(tensor)}")
+        if StandardScaler.counter < 3:
+            self.logger.debug(
+                f"Output Shape: {tensor.shape}, type: {type(tensor)}")
+        StandardScaler.counter += 1
         return tensor
 
 
@@ -73,13 +84,17 @@ class MinMaxScaler:
 
 
 class ToTensor:
+    counter = 0
     """Convert ndarrays in sample to Tensors."""
 
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, sample):
-        self.logger.debug(f'Converting sample to tensor: {type(sample)}')
+        if ToTensor.counter < 3:
+            self.logger.debug(f'Converting sample to tensor: {type(sample)}')
         tensor = torch.from_numpy(sample).float()
-        self.logger.debug(f'Sample converted to tensor: {type(tensor)}')
+        if ToTensor.counter < 3:
+            self.logger.debug(f'Sample converted to tensor: {type(tensor)}')
+        ToTensor.counter += 1
         return tensor

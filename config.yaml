@@ -2,6 +2,16 @@
 
 ##########################################################################################
 
+# MODEL
+lr: 0.001
+weight_decay: 0.00001
+epochs: 10
+device: cpu
+
+window_size: 14
+
+##########################################################################################
+
 # VARS
 input_variable: 'avg_temp_c'
 variables: ['avg_sea_level_pres_hpa','avg_temp_c', 'precipitation_mm']
