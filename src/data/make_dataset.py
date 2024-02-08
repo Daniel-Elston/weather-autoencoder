@@ -36,7 +36,7 @@ class WeatherDataset(Dataset):
         window = self.series.iloc[idx:idx + self.window_size].values
         if self.transform:
             window = self.transform(window)
-        if idx < 3:
-            self.logger.debug(
-                f'Window Num {idx}, Shape: {window.shape}, type: {type(window)}')
+        # if idx < 3:
+        #     self.logger.debug(
+        #         f'Window Num {idx}, Shape: {window.shape}, type: {type(window)}')
         return window

@@ -13,13 +13,13 @@ from src.data.transforms import StandardScaler
 from src.data.transforms import ToTensor
 from src.data.transforms import Windowing
 from src.features.build_features import BuildFeatures
+from src.models.train_model import train_model
+from src.models.uae import Autoencoder
 from utils.file_load import FileLoader
 from utils.file_save import FileSaver
 from utils.my_utils import dataset_stats
 from utils.os_view import OSView
 from utils.setup_env import setup_project_env
-# from src.data.transforms import Differencing
-# from src.data.transforms import MinMaxScaler
 warnings.filterwarnings("ignore")
 
 
@@ -29,6 +29,7 @@ class DataPipeline:
         self.data_paths = config['data_paths']
         self.input_var = self.config['input_variable']
         self.window_size = self.config['window_size']
+        self.batch_size = self.config['batch_size']
         self.lr = self.config['lr']
         self.weight_decay = self.config['weight_decay']
         self.epochs = self.config['epochs']
@@ -58,13 +59,13 @@ class DataPipeline:
 
     def main(self):
         self.logger.info(
-            'Running pipeline ------------------------------------------------------------'
+            'Running Pipeline ------------------------------------------------------------'
         )
         df1, df2 = self.run_load_data()
         train_df, test_df = self.run_process_data(df1, df2, save=True)
-        means, stds, mins, maxs = dataset_stats(train_df)
+        means, stds, _, _ = dataset_stats(train_df)
         self.logger.info(
-            'Creating datasets/dataloaders ------------------------------------------------'
+            'Creating Datasets/Dataloaders ------------------------------------------------'
         )
         transform = Compose([
             Windowing(window_size=self.window_size),
@@ -78,10 +79,21 @@ class DataPipeline:
         test_dataset = WeatherDataset(
             series=test_df, window_size=self.window_size, transform=transform)
 
-        train_loader = DataLoader(train_dataset, batch_size=8, shuffle=False)
-        test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False)
+        train_loader = DataLoader(
+            train_dataset, batch_size=self.batch_size, shuffle=False)
+        test_loader = DataLoader(
+            test_dataset, batch_size=self.batch_size, shuffle=False)
 
-        OSView().get_visual(train_dataset, train_loader)
+        self.logger.info(
+            'Training Model ------------------------------------------------'
+        )
+        autoencoder = Autoencoder(
+            input_dim=self.window_size, latent_dims=self.batch_size)
+        train_model(
+            autoencoder, train_loader,
+            self.lr, self.weight_decay, self.epochs, self.device)
+
+        # OSView().get_visual(train_dataset, train_loader)
         OSView().get_visual(test_dataset, test_loader)
 
     def test(self):

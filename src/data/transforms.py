@@ -20,8 +20,8 @@ class Windowing:
     def __call__(self, data):
 
         if Windowing.counter < 3:
-            self.logger.debug(f'Generating windows of size: {
-                              self.window_size}')
+            self.logger.debug(
+                f'Generating windows of size: {self.window_size}')
 
         windows = []
         for i in range(len(data) - self.window_size + 1):

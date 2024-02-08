@@ -3,19 +3,27 @@
 ##########################################################################################
 
 # MODEL
+batch_size: 32
 lr: 0.001
-weight_decay: 0.00001
+weight_decay: 0.001
 epochs: 10
 device: cpu
 
-window_size: 14
+window_size: 90
 
+model_params:
+  device: cpu
+  epochs: 10
+  lr: 0.001
+  weight_decay: 0.001
+  momentum: 0.9
+  dampening: 0
 ##########################################################################################
 
 # VARS
-input_variable: 'avg_temp_c'
-variables: ['avg_sea_level_pres_hpa','avg_temp_c', 'precipitation_mm']
-windows: [7, 30]
+input_variable: "avg_temp_c"
+variables: ["avg_sea_level_pres_hpa", "avg_temp_c", "precipitation_mm"]
+windows: [7, 30] # Plotting windows
 
 ##########################################################################################
 
@@ -26,10 +34,10 @@ data_paths:
   - data/raw/countries.csv
   - data/raw/cities.csv
 
-processed_data: 'data/processed/processed_data.xlsx'
-processed_data_comp: 'data/processed/processed_data.parq'
+processed_data: "data/processed/processed_data.xlsx"
+processed_data_comp: "data/processed/processed_data.parq"
 
-results_path: 'results/res1.json'
+results_path: "results/model_res.json"
 
 fig_path: reports/figures/
 
@@ -81,5 +89,4 @@ processing:
     - snow_depth_mm
     - avg_wind_speed_kmh
     - avg_sea_level_pres_kpa
-
 ##########################################################################################
