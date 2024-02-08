@@ -13,13 +13,14 @@ from src.data.transforms import StandardScaler
 from src.data.transforms import ToTensor
 from src.data.transforms import Windowing
 from src.features.build_features import BuildFeatures
+from src.models.model_params import ModelParams
 from src.models.train_model import train_model
 from src.models.uae import Autoencoder
 from utils.file_load import FileLoader
 from utils.file_save import FileSaver
 from utils.my_utils import dataset_stats
-from utils.os_view import OSView
 from utils.setup_env import setup_project_env
+# from utils.os_view import OSView
 warnings.filterwarnings("ignore")
 
 
@@ -30,22 +31,18 @@ class DataPipeline:
         self.input_var = self.config['input_variable']
         self.window_size = self.config['window_size']
         self.batch_size = self.config['batch_size']
-        self.lr = self.config['lr']
-        self.weight_decay = self.config['weight_decay']
-        self.epochs = self.config['epochs']
-        self.device = self.config['device']
 
         self.raw_loader = RawDataLoader(self.config)
         self.processor = Processor(self.config)
         self.feature_builder = BuildFeatures(self.config)
         self.loader = FileLoader()
         self.saver = FileSaver()
+        self.params = ModelParams()
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def run_load_data(self):
         self.raw_loader.load_data()
         df1, df2, df3, df4 = self.raw_loader.get_data()
-        # self.raw_loader.get_data_info(df1, info='shape')
         return df1, df2
 
     def run_process_data(self, df1, df2, save=False):
@@ -69,20 +66,19 @@ class DataPipeline:
         )
         transform = Compose([
             Windowing(window_size=self.window_size),
-            # Differencing(),
             StandardScaler(means, stds),
             ToTensor(),
         ])
 
         train_dataset = WeatherDataset(
             series=train_df, window_size=self.window_size, transform=transform)
-        test_dataset = WeatherDataset(
-            series=test_df, window_size=self.window_size, transform=transform)
+        # test_dataset = WeatherDataset(
+        #     series=test_df, window_size=self.window_size, transform=transform)
 
         train_loader = DataLoader(
             train_dataset, batch_size=self.batch_size, shuffle=False)
-        test_loader = DataLoader(
-            test_dataset, batch_size=self.batch_size, shuffle=False)
+        # test_loader = DataLoader(
+        #     test_dataset, batch_size=self.batch_size, shuffle=False)
 
         self.logger.info(
             'Training Model ------------------------------------------------'
@@ -90,11 +86,10 @@ class DataPipeline:
         autoencoder = Autoencoder(
             input_dim=self.window_size, latent_dims=self.batch_size)
         train_model(
-            autoencoder, train_loader,
-            self.lr, self.weight_decay, self.epochs, self.device)
+            autoencoder, train_loader, self.params)
 
         # OSView().get_visual(train_dataset, train_loader)
-        OSView().get_visual(test_dataset, test_loader)
+        # OSView().get_visual(test_dataset, test_loader)
 
     def test(self):
         print('Testing pipeline')

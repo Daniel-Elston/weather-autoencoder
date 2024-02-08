@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import datetime
 import json
 import os
+from datetime import datetime
 
 import pandas as pd
-
-# from utils.setup_env import setup_project_env
-# project_dir, config, setup_logs = setup_project_env()
 
 
 def dataset_stats(data):
@@ -38,29 +35,9 @@ def n_nans(df):
         print(f'{col}: {df_nans}, {round(((df_nans/len(df))*100), 3)}')
 
 
-def save_model_results(opt, run_results: dict):
+def save_model_results(opt_name, criterion_name, params, run_results: dict):
     results_path = 'results/model_res.json'
     results = []
-
-    lr = None
-    weight_decay = None
-    momentum = None
-    dampening = None
-
-    param_list = ['lr', 'weight_decay', 'momentum', 'dampening']
-
-    for param in param_list:
-        if param in opt.defaults:
-            if param == 'lr':
-                lr = opt.defaults[param]
-            elif param == 'weight_decay':
-                weight_decay = opt.defaults[param]
-            elif param == 'momentum':
-                momentum = opt.defaults[param]
-            elif param == 'dampening':
-                dampening = opt.defaults[param]
-
-    opt_name = opt.__class__.__name__
 
     # Load existing results if file exists
     if os.path.exists(results_path):
@@ -70,10 +47,11 @@ def save_model_results(opt, run_results: dict):
     results.append({
         'run_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'optimiser': opt_name,
-        'lr': lr,
-        'weight_decay': weight_decay,
-        'momentum': momentum,
-        'dampeing': dampening,
+        'criterion': criterion_name,
+        'lr': params.lr,
+        'weight_decay': params.weight_decay,
+        'momentum': params.momentum,
+        'dampeing': params.dampening,
         'run_results': run_results,
     })
 

@@ -5,18 +5,20 @@ import torch
 from utils.my_utils import save_model_results
 
 
-def train_model(autoencoder, data_loader, lr, weight_decay, epochs, device):
-    autoencoder.to(device)
-    opt = torch.optim.Adam(autoencoder.parameters(),
-                           lr=lr, weight_decay=weight_decay)
-    # opt = torch.optim.SGD(autoencoder.parameters(), lr=lr, momentum=0.9)
+def train_model(autoencoder, data_loader, params):
+    autoencoder.to(params.device)
+    opt = torch.optim.Adam(
+        autoencoder.parameters(), lr=params.lr, weight_decay=params.weight_decay)
+    # opt = torch.optim.SGD(
+    #     autoencoder.parameters(), lr=params.lr, momentum=params.weight_decay, dampening=params.dampening)
     criterion = torch.nn.MSELoss()
+    # criterion = torch.nn.L1Loss()
 
     loss_store = {}
-    for epoch in range(epochs):
+    for epoch in range(params.epochs):
         total_loss = 0
         for x in data_loader:
-            x = x.float().to(device)
+            x = x.float().to(params.device)
             opt.zero_grad()
             x_hat = autoencoder(x.flatten(1))
             loss = criterion(x_hat, x)
@@ -24,10 +26,12 @@ def train_model(autoencoder, data_loader, lr, weight_decay, epochs, device):
             opt.step()
             total_loss += loss.item()
 
-        avg_loss = total_loss / len(data_loader)  # average loss for the epoch
-        loss_store[epoch] = avg_loss  # Store average loss for the epoch
-        print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}")
+        avg_loss = total_loss / len(data_loader)
+        loss_store[epoch] = avg_loss
+        print(f"Epoch {epoch+1}/{params.epochs}, Loss: {avg_loss:.4f}")
 
-    save_model_results(opt, loss_store)
+    opt_name = opt.__class__.__name__
+    criterion_name = criterion.__class__.__name__
+    save_model_results(opt_name, criterion_name, params, loss_store)
 
     return autoencoder
