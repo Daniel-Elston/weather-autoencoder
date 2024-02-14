@@ -2,21 +2,21 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import torch
+
+if torch.cuda.is_available():
+    device = 'cuda'
+else:
+    device = 'cpu'
+
 
 @dataclass
 class ModelParams:
-    device: str = 'cpu'
+    device: str = device
     epochs: int = 10
-    lr: float = 0.001
-    weight_decay: float = 0.0005
+    input_dim: int = 365
+    latent_dims: int = 128
+    lr: float = 1e-4
+    weight_decay: float = 1e-4
     momentum: float = 0.9
     dampening: float = 0.0
-
-
-# def main():
-#     model_params = ModelParams()
-#     print(model_params.__dict__)
-#     print(model_params.device)
-
-# if __name__ == "__main__":
-#     main()

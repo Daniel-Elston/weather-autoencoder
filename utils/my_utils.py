@@ -35,11 +35,10 @@ def n_nans(df):
         print(f'{col}: {df_nans}, {round(((df_nans/len(df))*100), 3)}')
 
 
-def save_model_results(opt_name, criterion_name, params, run_results: dict):
+def save_model_results(opt_name, params, run_results: dict):
     results_path = 'results/model_res.json'
     results = []
 
-    # Load existing results if file exists
     if os.path.exists(results_path):
         with open(results_path, 'r') as file:
             results = json.load(file)
@@ -47,7 +46,6 @@ def save_model_results(opt_name, criterion_name, params, run_results: dict):
     results.append({
         'run_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'optimiser': opt_name,
-        'criterion': criterion_name,
         'lr': params.lr,
         'weight_decay': params.weight_decay,
         'momentum': params.momentum,

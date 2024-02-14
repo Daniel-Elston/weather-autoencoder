@@ -46,6 +46,13 @@ def setup_logging(name, project_dir, log_file_name, config):
                 'backupCount': 5,
             },
         },
+        'loggers': {
+            'matplotlib': {
+                'level': 'WARNING',
+                'handlers': ['console', 'file'],
+                'propagate': False
+            },
+        },
         'root': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],

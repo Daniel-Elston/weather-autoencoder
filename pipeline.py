@@ -4,22 +4,29 @@ import logging
 import warnings
 
 from torch.utils.data import DataLoader
+from torchinfo import summary
 from torchvision.transforms import Compose
 
 from src.data.load_data import RawDataLoader
 from src.data.make_dataset import WeatherDataset
 from src.data.processing import Processor
-from src.data.transforms import StandardScaler
+from src.data.transforms import MinMaxScaler
 from src.data.transforms import ToTensor
 from src.data.transforms import Windowing
 from src.features.build_features import BuildFeatures
 from src.models.model_params import ModelParams
+from src.models.predict_model import predict
 from src.models.train_model import train_model
-from src.models.uae import Autoencoder
+from src.models.uae import ConvAutoencoder
+from src.visualization.results_visuals import plot_losses
+from src.visualization.results_visuals import plot_preds
+from src.visualization.results_visuals import plot_reconstructed
 from utils.file_load import FileLoader
 from utils.file_save import FileSaver
 from utils.my_utils import dataset_stats
 from utils.setup_env import setup_project_env
+# from src.data.transforms import StandardScaler
+# from src.models.uae import LinAutoencoder
 # from utils.os_view import OSView
 warnings.filterwarnings("ignore")
 
@@ -59,44 +66,60 @@ class DataPipeline:
             'Running Pipeline ------------------------------------------------------------'
         )
         df1, df2 = self.run_load_data()
-        train_df, test_df = self.run_process_data(df1, df2, save=True)
-        means, stds, _, _ = dataset_stats(train_df)
+        train_df, test_df = self.run_process_data(df1, df2, save=False)
+        means, stds, mins, maxs = dataset_stats(train_df)
+
         self.logger.info(
             'Creating Datasets/Dataloaders ------------------------------------------------'
         )
         transform = Compose([
             Windowing(window_size=self.window_size),
-            StandardScaler(means, stds),
+            # StandardScaler(means, stds),
+            MinMaxScaler(mins, maxs),
             ToTensor(),
         ])
 
         train_dataset = WeatherDataset(
             series=train_df, window_size=self.window_size, transform=transform)
-        # test_dataset = WeatherDataset(
-        #     series=test_df, window_size=self.window_size, transform=transform)
+        test_dataset = WeatherDataset(
+            series=test_df, window_size=self.window_size, transform=transform)
 
         train_loader = DataLoader(
             train_dataset, batch_size=self.batch_size, shuffle=False)
-        # test_loader = DataLoader(
-        #     test_dataset, batch_size=self.batch_size, shuffle=False)
+        test_loader = DataLoader(
+            test_dataset, batch_size=self.batch_size, shuffle=False)
 
         self.logger.info(
             'Training Model ------------------------------------------------'
         )
-        autoencoder = Autoencoder(
-            input_dim=self.window_size, latent_dims=self.batch_size)
-        train_model(
-            autoencoder, train_loader, self.params)
+        # model = LinAutoencoder(
+        #     input_dim=self.params.input_dim, latent_dims=self.params.latent_dims)
+        model = ConvAutoencoder()
 
-        # OSView().get_visual(train_dataset, train_loader)
-        # OSView().get_visual(test_dataset, test_loader)
+        train_loss, val_loss = train_model(
+            model, train_loader, test_loader, self.params)
 
-    def test(self):
-        print('Testing pipeline')
+        # scaler = StandardScaler(means, stds)
+        scaler = MinMaxScaler(mins, maxs)
+        originals, predictions = predict(model, test_loader, scaler)
+
+        self.logger.info(
+            'Model Evaluation ------------------------------------------------'
+        )
+        with open(self.config['summary_path'], 'w', encoding='utf-8') as f:
+            print(summary(model, (1, 1, self.window_size)), file=f)
+
+        plot_reconstructed(model, test_loader,
+                           device=self.params.device, sample_size=1)
+        plot_preds(originals, predictions)
+        plot_losses(train_loss, val_loss)
+
+        self.logger.info(
+            'Pipeline Complete ------------------------------------------------'
+        )
 
 
 if __name__ == '__main__':
     project_dir, config, set_log = setup_project_env()
     pipeline = DataPipeline(config)
     pipeline.main()
-    # pipeline.test()
