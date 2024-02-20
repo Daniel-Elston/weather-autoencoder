@@ -3,7 +3,7 @@
 ##########################################################################################
 
 # TORCH PROCESSING
-window_size: 288 #365
+window_size: 365
 batch_size: 16
 
 ##########################################################################################
@@ -29,11 +29,11 @@ data_paths:
   - data/raw/countries.csv
   - data/raw/cities.csv
 
-processed_data: "data/processed/processed_data.xlsx"
-processed_data_comp: "data/processed/processed_data.parq"
+processed_data: data/processed/processed_data.xlsx
+processed_data_comp: data/processed/processed_data.parq
 
-results_path: "reports/models/model_res.json"
-summary_path: "reports/models/model_summary.txt"
+results_path: reports/models/model_res.json
+summary_path: reports/models/model_summary.txt
 fig_path: reports/figures/
 
 ##########################################################################################

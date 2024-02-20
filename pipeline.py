@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import warnings
+from pathlib import Path
 
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose
@@ -31,13 +32,13 @@ class DataPipeline:
     def __init__(self, config):
         self.config = config
         self.data_paths = config['data_paths']
-        self.input_var = self.config['input_variable']
-        self.window_size = self.config['window_size']
-        self.batch_size = self.config['batch_size']
+        self.input_var = config['input_variable']
+        self.window_size = config['window_size']
+        self.batch_size = config['batch_size']
 
-        self.raw_loader = RawDataLoader(self.config)
-        self.processor = Processor(self.config)
-        self.feature_builder = BuildFeatures(self.config)
+        self.raw_loader = RawDataLoader(config)
+        self.processor = Processor(config)
+        self.feature_builder = BuildFeatures(config)
         self.loader = FileLoader()
         self.saver = FileSaver()
         self.params = ModelParams()
@@ -45,7 +46,7 @@ class DataPipeline:
 
     def run_load_data(self):
         self.raw_loader.load_data()
-        df1, df2, df3, df4 = self.raw_loader.get_data()
+        df1, df2, _, _ = self.raw_loader.get_data()
         return df1, df2
 
     def run_process_data(self, df1, df2, save=False):
@@ -53,7 +54,7 @@ class DataPipeline:
         df = self.feature_builder.build_features(df)
         df = self.processor.further_process(df)
         if save:
-            self.saver.save_file(df, self.config['processed_data'])
+            self.saver.save_file(df, Path(self.config['processed_data']))
         train_df, val_df, test_df = self.processor.split_data(
             df, self.input_var)
         return train_df, val_df, test_df
@@ -99,16 +100,14 @@ class DataPipeline:
             model, train_loader, val_loader, self.params)
 
         scaler = MinMaxScaler(mins, maxs)
-        x_train, x_train_preds = predict(
-            model, train_loader, scaler, self.params)
         x_test, x_test_preds = predict(model, test_loader, scaler, self.params)
 
         self.logger.info(
             'Model Evaluation ----------------------------------------------------------'
         )
-        save_model_summary(self.config, model)
+        save_model_summary(config, model)
 
-        anomalies, test_mae_loss, test_errors = evaluations(
+        anomalies, test_mae_loss, _ = evaluations(
             x_test, x_test_preds)
 
         eval_plot = ResultsVisuals(x_test, x_test_preds)

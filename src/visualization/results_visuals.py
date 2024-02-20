@@ -18,7 +18,7 @@ class ResultsVisuals:
         plt.xlabel('Time')
         plt.ylabel('Temperature')
         plt.tight_layout()
-        plt.savefig('reports/figures/results/reconstruction.png')
+        # plt.savefig('reports/figures/results/reconstruction.png')
         plt.show()
 
     def plot_losses(self, train_loss: dict, val_loss: dict):
@@ -30,7 +30,7 @@ class ResultsVisuals:
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         plt.tight_layout()
-        plt.savefig('reports/figures/results/loss.png')
+        # plt.savefig('reports/figures/results/loss.png')
         plt.show()
 
     def plot_anomalies(self, anomalies):
@@ -50,7 +50,7 @@ class ResultsVisuals:
         plt.xlabel('Time')
         plt.ylabel('Temperature')
         plt.tight_layout()
-        plt.savefig('reports/figures/results/anomalies.png')
+        # plt.savefig('reports/figures/results/anomalies.png')
         plt.show()
 
     def plot_mae_loss(self, test_mae_loss: np.array):
@@ -59,7 +59,7 @@ class ResultsVisuals:
         plt.xlabel("Test MAE loss")
         plt.ylabel("No of samples")
         plt.tight_layout()
-        plt.savefig('reports/figures/results/mae_loss.png')
+        # plt.savefig('reports/figures/results/mae_loss.png')
         plt.show()
 
     def eval_plotting(self, train_loss, val_loss, test_mae_loss, anomalies):

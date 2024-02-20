@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 from torchinfo import summary
@@ -37,7 +38,7 @@ def n_nans(df):
 
 
 def save_model_results(config, opt_name, params, run_results: dict):
-    results_path = config['results_path']
+    results_path = Path(config['results_path'])
     results = []
 
     if os.path.exists(results_path):
@@ -59,5 +60,5 @@ def save_model_results(config, opt_name, params, run_results: dict):
 
 
 def save_model_summary(config, model):
-    with open(config['summary_path'], 'w', encoding='utf-8') as f:
+    with open(Path(config['summary_path']), 'w', encoding='utf-8') as f:
         print(summary(model, (1, 1, config['window_size'])), file=f)

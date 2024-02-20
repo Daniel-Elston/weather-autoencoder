@@ -32,15 +32,15 @@ warnings.filterwarnings("ignore")
 
 class DataPipeline:
     def __init__(self, config):
-        self.config = config
+        # self.config = config
         self.data_paths = config['data_paths']
-        self.input_var = self.config['input_variable']
-        self.window_size = self.config['window_size']
-        self.batch_size = self.config['batch_size']
+        self.input_var = config['input_variable']
+        self.window_size = config['window_size']
+        self.batch_size = config['batch_size']
 
-        self.raw_loader = RawDataLoader(self.config)
-        self.processor = Processor(self.config)
-        self.feature_builder = BuildFeatures(self.config)
+        self.raw_loader = RawDataLoader(config)
+        self.processor = Processor(config)
+        self.feature_builder = BuildFeatures(config)
         self.loader = FileLoader()
         self.saver = FileSaver()
         self.params = ModelParams()
@@ -98,8 +98,7 @@ class DataPipeline:
         self.logger.info(
             'Model Evaluation ------------------------------------------------'
         )
-        # with open(self.config['summary_path'], 'w', encoding='utf-8') as f:
-        #     print(summary(model, (1, 1, self.window_size)), file=f)
+
         anomalies, test_mae_loss, test_errors = evaluations(
             x_test, x_test_preds)
 
