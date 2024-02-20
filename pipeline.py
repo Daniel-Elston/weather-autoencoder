@@ -105,7 +105,7 @@ class DataPipeline:
         self.logger.info(
             'Model Evaluation ----------------------------------------------------------'
         )
-        save_model_summary(config, model)
+        save_model_summary(self.config, model)
 
         anomalies, test_mae_loss, _ = evaluations(
             x_test, x_test_preds)
