@@ -35,8 +35,8 @@ def n_nans(df):
         print(f'{col}: {df_nans}, {round(((df_nans/len(df))*100), 3)}')
 
 
-def save_model_results(opt_name, params, run_results: dict):
-    results_path = 'results/model_res.json'
+def save_model_results(config, opt_name, params, run_results: dict):
+    results_path = config['results_path']
     results = []
 
     if os.path.exists(results_path):

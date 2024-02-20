@@ -117,8 +117,11 @@ class Processor(RawDataLoader):
         train_df, test_df = train_test_split(
             df[input_variable], test_size=0.2, shuffle=False)
 
+        train_df, val_df = train_test_split(
+            train_df, test_size=0.25, shuffle=False)
+
         self.logger.debug(
             f"Train Split shape: {train_df.shape}, type: {type(df)}")
         self.logger.debug(
             f"Test Split shape: {test_df.shape}, type: {type(df)}")
-        return train_df, test_df  # X_train, X_test
+        return train_df, val_df, test_df  # X_train, X_test

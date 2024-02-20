@@ -14,20 +14,19 @@ from src.data.transforms import MinMaxScaler
 from src.data.transforms import ToTensor
 from src.data.transforms import Windowing
 from src.features.build_features import BuildFeatures
+from src.models.evaluate_model import evaluations
 from src.models.model_params import ModelParams
 from src.models.predict_model import predict
 from src.models.train_model import train_model
 from src.models.uae import ConvAutoencoder
+from src.visualization.results_visuals import plot_anomalies
 from src.visualization.results_visuals import plot_losses
+from src.visualization.results_visuals import plot_mae_loss
 from src.visualization.results_visuals import plot_preds
-from src.visualization.results_visuals import plot_reconstructed
 from utils.file_load import FileLoader
 from utils.file_save import FileSaver
 from utils.my_utils import dataset_stats
 from utils.setup_env import setup_project_env
-# from src.data.transforms import StandardScaler
-# from src.models.uae import LinAutoencoder
-# from utils.os_view import OSView
 warnings.filterwarnings("ignore")
 
 
@@ -58,15 +57,16 @@ class DataPipeline:
         df = self.processor.further_process(df)
         if save:
             self.saver.save_file(df, self.config['processed_data'])
-        train_df, test_df = self.processor.split_data(df, self.input_var)
-        return train_df, test_df
+        train_df, val_df, test_df = self.processor.split_data(
+            df, self.input_var)
+        return train_df, val_df, test_df
 
     def main(self):
         self.logger.info(
             'Running Pipeline ------------------------------------------------------------'
         )
         df1, df2 = self.run_load_data()
-        train_df, test_df = self.run_process_data(df1, df2, save=False)
+        train_df, val_df, test_df = self.run_process_data(df1, df2, save=False)
         means, stds, mins, maxs = dataset_stats(train_df)
 
         self.logger.info(
@@ -74,45 +74,49 @@ class DataPipeline:
         )
         transform = Compose([
             Windowing(window_size=self.window_size),
-            # StandardScaler(means, stds),
             MinMaxScaler(mins, maxs),
             ToTensor(),
         ])
 
         train_dataset = WeatherDataset(
             series=train_df, window_size=self.window_size, transform=transform)
+        val_dataset = WeatherDataset(
+            series=val_df, window_size=self.window_size, transform=transform)
         test_dataset = WeatherDataset(
             series=test_df, window_size=self.window_size, transform=transform)
 
         train_loader = DataLoader(
             train_dataset, batch_size=self.batch_size, shuffle=False)
+        val_loader = DataLoader(
+            val_dataset, batch_size=self.batch_size, shuffle=False)
         test_loader = DataLoader(
             test_dataset, batch_size=self.batch_size, shuffle=False)
 
         self.logger.info(
-            'Training Model ------------------------------------------------'
+            'Training Model ------------------------------------------------------------'
         )
-        # model = LinAutoencoder(
-        #     input_dim=self.params.input_dim, latent_dims=self.params.latent_dims)
         model = ConvAutoencoder()
 
         train_loss, val_loss = train_model(
-            model, train_loader, test_loader, self.params)
+            model, train_loader, val_loader, self.params)
 
-        # scaler = StandardScaler(means, stds)
         scaler = MinMaxScaler(mins, maxs)
-        originals, predictions = predict(model, test_loader, scaler)
+        x_train, x_train_preds = predict(model, train_loader, scaler)
+        x_test, x_test_preds = predict(model, test_loader, scaler)
 
         self.logger.info(
-            'Model Evaluation ------------------------------------------------'
+            'Model Evaluation ----------------------------------------------------------'
         )
         with open(self.config['summary_path'], 'w', encoding='utf-8') as f:
             print(summary(model, (1, 1, self.window_size)), file=f)
 
-        plot_reconstructed(model, test_loader,
-                           device=self.params.device, sample_size=1)
-        plot_preds(originals, predictions)
+        anomalies, test_mae_loss, test_errors = evaluations(
+            x_test, x_test_preds)
+
+        plot_preds(x_test, x_test_preds)
         plot_losses(train_loss, val_loss)
+        plot_mae_loss(test_mae_loss)
+        plot_anomalies(x_test[:, 0], x_test_preds[:, 0], anomalies[:, 0])
 
         self.logger.info(
             'Pipeline Complete ------------------------------------------------'

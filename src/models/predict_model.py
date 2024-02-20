@@ -3,7 +3,8 @@ from __future__ import annotations
 import torch
 
 
-def predict(model, data_loader, scaler, device='cpu'):
+def predict(model, data_loader, scaler):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     predictions = []
     originals = []
@@ -19,7 +20,8 @@ def predict(model, data_loader, scaler, device='cpu'):
             predictions.append(output)
             originals.append(batch.cpu())
 
-    predictions = torch.cat(predictions, dim=0)
-    originals = torch.cat(originals, dim=0)
+    predictions = torch.cat(predictions, dim=0).numpy()
+    originals = torch.cat(originals, dim=0).numpy()
 
-    return originals, predictions
+    predictions = predictions.reshape(-1, predictions.shape[-1])
+    return originals.squeeze(), predictions.squeeze()
