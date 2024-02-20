@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 
 import pandas as pd
+from torchinfo import summary
 
 
 def dataset_stats(data):
@@ -55,3 +56,8 @@ def save_model_results(config, opt_name, params, run_results: dict):
 
     with open(results_path, 'w') as file:
         json.dump(results, file, indent=4)
+
+
+def save_model_summary(config, model):
+    with open(config['summary_path'], 'w', encoding='utf-8') as f:
+        print(summary(model, (1, 1, config['window_size'])), file=f)

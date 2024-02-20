@@ -3,15 +3,14 @@ from __future__ import annotations
 import torch
 
 
-def predict(model, data_loader, scaler):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def predict(model, data_loader, scaler, params):
     model.eval()
     predictions = []
     originals = []
 
     with torch.no_grad():
         for batch in data_loader:
-            batch = batch.float().to(device)
+            batch = batch.float().to(params.device)
             output = model(batch)
 
             batch = scaler.inverse_transform(batch.cpu())

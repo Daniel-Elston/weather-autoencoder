@@ -1,22 +1,22 @@
 ==========================================================================================
 Layer (type:depth-idx)                   Output Shape              Param #
 ==========================================================================================
-ConvAutoencoder                          [1, 1, 365]               --
-├─Conv1d: 1-1                            [1, 32, 183]              256
-├─Dropout: 1-2                           [1, 32, 183]              --
-├─Conv1d: 1-3                            [1, 16, 92]               3,600
-├─ConvTranspose1d: 1-4                   [1, 16, 184]              1,808
-├─Dropout: 1-5                           [1, 16, 184]              --
-├─ConvTranspose1d: 1-6                   [1, 32, 368]              3,616
-├─ConvTranspose1d: 1-7                   [1, 1, 368]               225
+ConvAutoencoder                          [1, 1, 288]               --
+├─Conv1d: 1-1                            [1, 32, 144]              256
+├─Dropout: 1-2                           [1, 32, 144]              --
+├─Conv1d: 1-3                            [1, 16, 72]               3,600
+├─ConvTranspose1d: 1-4                   [1, 16, 144]              1,808
+├─Dropout: 1-5                           [1, 16, 144]              --
+├─ConvTranspose1d: 1-6                   [1, 32, 288]              3,616
+├─ConvTranspose1d: 1-7                   [1, 1, 288]               225
 ==========================================================================================
 Total params: 9,505
 Trainable params: 9,505
 Non-trainable params: 0
-Total mult-adds (Units.MEGABYTES): 2.12
+Total mult-adds (Units.MEGABYTES): 1.66
 ==========================================================================================
 Input size (MB): 0.00
-Forward/backward pass size (MB): 0.18
+Forward/backward pass size (MB): 0.14
 Params size (MB): 0.04
-Estimated Total Size (MB): 0.22
+Estimated Total Size (MB): 0.18
 ==========================================================================================

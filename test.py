@@ -19,13 +19,13 @@ from src.models.model_params import ModelParams
 from src.models.predict_model import predict
 from src.models.train_model import train_model
 from src.models.uae import ConvAutoencoder
-from src.visualization.results_visuals import plot_anomalies
-from src.visualization.results_visuals import plot_losses
-from src.visualization.results_visuals import plot_preds
+from src.visualization.results_visuals import ResultsVisuals
 from utils.file_load import FileLoader
 from utils.file_save import FileSaver
 from utils.my_utils import dataset_stats
 from utils.setup_env import setup_project_env
+# from src.visualization.results_visuals import plot_losses
+# from src.visualization.results_visuals import plot_preds
 
 warnings.filterwarnings("ignore")
 
@@ -45,6 +45,13 @@ class DataPipeline:
         self.saver = FileSaver()
         self.params = ModelParams()
         self.logger = logging.getLogger(self.__class__.__name__)
+
+    def create_loader(self, series, window_size, batch_size, transform=None):
+        dataset = WeatherDataset(
+            series=series, window_size=window_size, transform=transform)
+        dataloader = DataLoader(
+            dataset, batch_size=batch_size, shuffle=False)
+        return dataloader
 
     def test(self):
         print('Testing pipeline')
@@ -70,15 +77,10 @@ class DataPipeline:
             ToTensor(),
         ])
 
-        train_dataset = WeatherDataset(
-            series=train_df, window_size=288, transform=transform)
-        test_dataset = WeatherDataset(
-            series=test_df, window_size=288, transform=transform)
-
-        train_loader = DataLoader(
-            train_dataset, batch_size=128, shuffle=False)
-        test_loader = DataLoader(
-            test_dataset, batch_size=128, shuffle=False)
+        train_loader = self.create_loader(
+            train_df, self.window_size, self.batch_size, transform=transform)
+        test_loader = self.create_loader(
+            test_df, self.window_size, self.batch_size, transform=transform)
 
         # model = LinAutoencoder(
         #     input_dim=288, latent_dims=128)
@@ -89,8 +91,9 @@ class DataPipeline:
 
         # scaler = StandardScaler(means, stds)
         scaler = MinMaxScaler(mins, maxs)
-        x_train, x_train_preds = predict(model, train_loader, scaler)
-        x_test, x_test_preds = predict(model, test_loader, scaler)
+        x_train, x_train_preds = predict(
+            model, train_loader, scaler, self.params)
+        x_test, x_test_preds = predict(model, test_loader, scaler, self.params)
 
         self.logger.info(
             'Model Evaluation ------------------------------------------------'
@@ -100,9 +103,8 @@ class DataPipeline:
         anomalies, test_mae_loss, test_errors = evaluations(
             x_test, x_test_preds)
 
-        plot_preds(x_test, x_test_preds)
-        plot_losses(train_loss, val_loss)
-        plot_anomalies(x_test[:, 0], x_test_preds[:, 0], anomalies[:, 0])
+        eval_plot = ResultsVisuals(x_test, x_test_preds)
+        eval_plot.eval_plotting(train_loss, val_loss, test_mae_loss, anomalies)
 
 
 if __name__ == '__main__':
