@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import logging
 import warnings
 from pathlib import Path
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from pipeline import DataPipeline
-from utils.setup_env import setup_project_env
+from src.pipeline import DataPipeline
 
 warnings.filterwarnings("ignore")
 
@@ -18,7 +16,7 @@ class TestPipeline(DataPipeline):
         super().__init__(config)
         self.train_path = Path('data/interim/art_daily_small_noise.csv')
         self.test_path = Path('data/interim/art_daily_jumpsup.csv')
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.batch_size = 288
 
     def run_load_data(self):
         df1 = pd.read_csv(self.train_path)
@@ -43,9 +41,3 @@ class TestPipeline(DataPipeline):
         super().main()
         self.logger.info(
             '============================== TEST PIPELINE COMPLETE ==============================')
-
-
-if __name__ == '__main__':
-    project_dir, config, set_log = setup_project_env()
-    test_pipeline = TestPipeline(config)
-    test_pipeline.main()

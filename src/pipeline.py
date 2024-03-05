@@ -24,7 +24,6 @@ from utils.file_load import FileLoader
 from utils.file_save import FileSaver
 from utils.my_utils import dataset_stats
 from utils.my_utils import save_model_summary
-from utils.setup_env import setup_project_env
 warnings.filterwarnings("ignore")
 
 
@@ -116,9 +115,3 @@ class DataPipeline:
         self.logger.info(
             'Pipeline Complete ------------------------------------------------'
         )
-
-
-if __name__ == '__main__':
-    project_dir, config, set_log = setup_project_env()
-    pipeline = DataPipeline(config)
-    pipeline.main()

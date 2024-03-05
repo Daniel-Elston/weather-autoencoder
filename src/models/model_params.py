@@ -10,7 +10,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 @dataclass
 class ModelParams:
     device: str = device
-    epochs: int = 2
+    epochs: int = 15
     input_dim: int = 365
     latent_dims: int = 128
     lr: float = 1e-4
